@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Intellia Health — Financial Planning & Reserving</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="app-container">
+
+    <!-- ── Left Sidebar (ShareWillow Aesthetic) ───────────────── -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <!-- Sleek geometric brand mark -->
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="brand-name">Intellia</div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a class="nav-link active" data-tab="module-forecasting">
+          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          <span>Forecasting</span>
+        </a>
+        <a class="nav-link" data-tab="module-budget">
+          <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+          <span>Budget & Variance</span>
+        </a>
+        <a class="nav-link" data-tab="module-reserves">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          <span>Claims Reserving</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-user">
+        <div class="user-team">Intellia Consulting</div>
+        <div class="user-name-row">
+          <span>Syed Abdullah</span>
+          <svg viewBox="0 0 24 24" fill="none"><polyline points="6 9 12 15 18 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></polyline></svg>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── Main Workspace ────────────────────────────────────── -->
+    <main class="main-content">
+
+      <!-- Breadcrumb / Back Link -->
+      <a class="back-link" id="resetToForecastBtn">
+        <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        <span>Back</span>
+      </a>
+
+      <!-- Page Title & Primary Actions Row -->
+      <div class="page-title-row">
+        <div class="title-left">
+          <h1 class="page-title" id="pageTitleText">Operating Plan & Variance</h1>
+          <span class="badge-draft">DRAFT</span>
+        </div>
+        <div class="header-actions">
+          <button class="btn-link" id="resetGlobalBtn">Reset</button>
+          <button class="btn-pill" id="exportGlobalBtn">Export Plan</button>
+        </div>
+      </div>
+
+      <!-- Clean Serif Underline Tabs (ShareWillow style) -->
+      <div class="nav-tabs">
+        <button class="tab-btn active" data-target="module-forecasting">Revenue Forecasting</button>
+        <button class="tab-btn" data-target="module-budget">Operating Budget</button>
+        <button class="tab-btn" data-target="module-reserves">Claims Reserving (IBNR)</button>
+      </div>
+
+      <!-- ====================================================== -->
+      <!-- TAB 1: REVENUE FORECASTING                             -->
+      <!-- ====================================================== -->
+      <section id="module-forecasting" class="module-view active">
+        <div class="two-column-workspace">
+
+          <!-- Left Column: Data Table & Projection Chart -->
+          <div class="workspace-main">
+            <!-- Inline summary metrics -->
+            <div class="metrics-strip">
+              <div class="metric-box">
+                <div class="metric-box-label">Projected FY26 Revenue</div>
+                <div class="metric-box-val" id="metricProjectedRevenue">₨ 0.00 Cr</div>
+                <div class="metric-box-sub">Annualized run-rate</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-box-label">YoY Growth</div>
+                <div class="metric-box-val" id="metricYoYGrowth">+0.0%</div>
+                <div class="metric-box-sub">vs FY2025 actual base</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-box-label">In-Sample MAPE</div>
+                <div class="metric-box-val" id="metricMape">4.2%</div>
+                <div class="metric-box-sub">Backtested error</div>
+              </div>
+            </div>
+
+            <!-- Forecast Cashflow Table (matches ShareWillow table format) -->
+            <div class="editorial-card">
+              <div class="editorial-card-header">
+                <div>
+                  <h3 class="card-heading">Projected Cashflow Stream</h3>
+                  <div class="card-caption">Monthly clinical service volume & seasonalized receipts (PKR Lakhs)</div>
+                </div>
+              </div>
+              <div class="editorial-table-container">
+                <table class="editorial-table">
+                  <thead>
+                    <tr>
+                      <th>Period</th>
+                      <th class="num-col">Projected Run</th>
+                      <th class="num-col">95% Range (&plusmn;1.96&sigma;)</th>
+                      <th class="num-col">Seasonal Weight</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="forecastTableBody">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Visual Line Chart -->
+            <div class="editorial-card">
+              <div class="editorial-card-header">
+                <div>
+                  <h3 class="card-heading">Empirical Revenue Trajectory</h3>
+                  <div class="card-caption">Historical monthly actuals vs model projection with confidence interval</div>
+                </div>
+              </div>
+              <div class="chart-box">
+                <canvas id="forecastChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Inspector Card (ShareWillow style) -->
+          <div class="inspector-card">
+            <div class="inspector-section">
+              <div class="inspector-label">FISCAL PERIOD</div>
+              <div class="chips-row">
+                <div class="chip active">2025</div>
+                <div class="chip">Monthly</div>
+                <div class="chip">Jul &ndash; Jun</div>
+              </div>
+            </div>
+
+            <div class="inspector-section">
+              <div class="inspector-label">FORECAST METHOD</div>
+              <div class="chip chip-highlight" id="activeMethodChip">
+                Exponential Smoothing (α=0.45)
+              </div>
+              <div class="chips-row" style="margin-top: 6px;">
+                <button class="chip forecast-method-btn active" data-method="exp">Exp Smooth</button>
+                <button class="chip forecast-method-btn" data-method="trend">Linear Trend</button>
+                <button class="chip forecast-method-btn" data-method="ma">3M Average</button>
+              </div>
+            </div>
+
+            <div class="inspector-section">
+              <div class="inspector-label">SERVICE STREAM</div>
+              <select class="chip" id="forecastStreamSelect" style="width: 100%; appearance: none; background: #FFFFFF; font-family: inherit;">
+                <option value="total">All Combined Streams</option>
+                <option value="inpatient">Inpatient Care (IPD)</option>
+                <option value="outpatient">Outpatient Clinics (OPD)</option>
+                <option value="diagnostics">Diagnostics & MRI</option>
+              </select>
+            </div>
+
+            <div class="inspector-section">
+              <div class="inspector-label">CONFIDENCE BAND</div>
+              <div class="chips-row">
+                <div class="chip">95% Fixed</div>
+                <div class="chip">&plusmn;1.96 Residual &sigma;</div>
+              </div>
+            </div>
+
+            <div class="inspector-section">
+              <div class="inspector-label">HEALTHCARE SEASONAL DRIVERS</div>
+              <div class="chip-list">
+                <div class="chip-list-item">
+                  <span>Winter Flu Surge</span>
+                  <span>+14% (Dec-Jan)</span>
+                </div>
+                <div class="chip-list-item">
+                  <span>Post-Summer Volume</span>
+                  <span>+8% (Oct-Nov)</span>
+                </div>
+                <div class="chip-list-item">
+                  <span>Monsoon Rain Dip</span>
+                  <span>-12% (Jul-Aug)</span>
+                </div>
+                <div class="chip-list-item">
+                  <span>Ramadan Operating Hours</span>
+                  <span>-10% (Mar-Apr)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ====================================================== -->
+      <!-- TAB 2: OPERATING BUDGET & VARIANCE                     -->
+      <!-- ====================================================== -->
+      <section id="module-budget" class="module-view">
+        <div class="two-column-workspace">
+
+          <!-- Left Column: Departmental Budget Table & Waterfall -->
+          <div class="workspace-main">
+            <!-- Inline summary metrics -->
+            <div class="metrics-strip">
+              <div class="metric-box">
+                <div class="metric-box-label">Approved Budget</div>
+                <div class="metric-box-val" id="metricTotalBudget">₨ 0.00 Cr</div>
+                <div class="metric-box-sub">FY2025 allocation</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-box-label">Actual Expenditure</div>
+                <div class="metric-box-val" id="metricTotalActual">₨ 0.00 Cr</div>
+                <div class="metric-box-sub">YTD incurred spend</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-box-label">Net Variance</div>
+                <div class="metric-box-val" id="metricNetVariance">₨ 0.00 Cr</div>
+                <div class="metric-box-sub" id="metricNetVarianceSub">Overrun / (Savings)</div>
+              </div>
+            </div>
+
+            <!-- Departmental Table -->
+            <div class="editorial-card">
+              <div class="editorial-card-header">
+                <div>
+                  <h3 class="card-heading">Operating Expenditure Ledger</h3>
+                  <div class="card-caption">Values in PKR Lakhs. Edit numeric cells directly to simulate real-time adjustments.</div>
+                </div>
+              </div>
+              <div class="editorial-table-container">
+                <table class="editorial-table">
+                  <thead>
+                    <tr>
+                      <th>Expense Line</th>
+                      <th class="num-col">Budget</th>
+                      <th class="num-col">Actual</th>
+                      <th class="num-col">Variance</th>
+                      <th class="num-col">% Var</th>
+                      <th>Detail</th>
+                    </tr>
+                  </thead>
+                  <tbody id="budgetTableBody">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Variance Bridge Waterfall -->
+            <div class="editorial-card">
+              <div class="editorial-card-header">
+                <div>
+                  <h3 class="card-heading">Operating Variance Bridge</h3>
+                  <div class="card-caption">Sequential stepping from approved budget base to actualized expenditure</div>
+                </div>
+              </div>
+              <div class="chart-box">
+                <canvas id="waterfallChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Monthly Drill-Down Panel -->
+            <div class="editorial-card" id="drilldownCard" style="display: none;">
+              <div class="editorial-card-header">
+                <div>
+                  <h3 class="card-heading">Monthly Breakdown: <span id="drilldownCategoryName">Staff & Nursing Costs</span></h3>
+                  <div class="card-caption">12-Month distribution across FY2025 (Period: 07/2024 &ndash; 06/2025)</div>
+                </div>
+              </div>
+              <div class="chart-box" style="height: 240px;">
+                <canvas id="drilldownChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Budget Structure & Rules Inspector -->
+          <div class="inspector-card">
+            <div class="inspector-section">
+              <div class="inspector-label">REPORTING YEAR</div>
+              <div class="chips-row">
+                <div class="chip active">FY2025</div>
+                <div class="chip">Full Year Actuals</div>
+              </div>
+            </div>
+
+            <div class="inspector-section">
+              <div class="inspector-label">MONTHLY BURN RATE</div>
+              <div class="chip chip-highlight" id="metricMonthlyBurn">
+                ₨ 332.2 L / month
+              </div>
+            </div>
+
+            <div class="inspector-section">
+              <div class="inspector-label">VARIANCE THRESHOLDS</div>
+              <div class="chip-list">
+                <div class="chip-list-item">
+                  <span>Under / Within +2%</span>
+                  <span style="color: var(--accent-green);">Favorable</span>
+                </div>
+                <div class="chip-list-item">
+                  <span>+2% to +8% Overrun</span>
+                  <span style="color: #A06020;">Watchlist</span>
+                </div>
+                <div class="chip-list-item">
+                  <span>&gt; +8% Overrun</span>
+                  <span style="color: var(--accent-terracotta);">Over Budget</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="inspector-section">
+              <div class="inspector-label">CONTROLS</div>
+              <div class="chips-row">
+                <button class="chip" id="resetBudgetBtn">Reset Line Items</button>
+                <button class="chip" id="exportBudgetCsvBtn">Download CSV</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ====================================================== -->
+      <!-- TAB 3: CLAIMS RESERVING (ACTUARIAL IBNR)                -->
+      <!-- ====================================================== -->
+      <section id="module-reserves" class="module-view">
+        <div class="two-column-workspace">
+
+          <!-- Left Column: Triangle & Indicated Reserve Table -->
+          <div class="workspace-main">
+            <!-- Inline summary metrics -->
+            <div class="metrics-strip">
+              <div class="metric-box">
+                <div class="metric-box-label">Indicated IBNR Reserve</div>
+                <div class="metric-box-val" id="metricTotalIbnr">₨ 0.00 Cr</div>
+                <div class="metric-box-sub">Incurred But Not Reported</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-box-label">Reserve Coverage Ratio</div>
+                <div class="metric-box-val" id="metricReserveAdequacy">108%</div>
+                <div class="metric-box-sub">Booked / Indicated liability</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-box-label">SECP Benchmark</div>
+                <div class="metric-box-val">100%</div>
+                <div class="metric-box-sub">Statutory solvency minimum</div>
+              </div>
+            </div>
+
+            <!-- Cumulative Claims Triangle Card -->
+            <div class="editorial-card">
+              <div class="editorial-card-header">
+                <div>
+                  <h3 class="card-heading">Cumulative Incurred Claims Triangle</h3>
+                  <div class="card-caption">Accident Year development (PKR Lakhs). Projected values marked with an asterisk (*).</div>
+                </div>
+              </div>
+              <div class="editorial-table-container">
+                <table class="editorial-table" id="triangleTable">
+                  <!-- Populated dynamically -->
+                </table>
+              </div>
+            </div>
+
+            <!-- Indicated Reserves by Cohort -->
+            <div class="editorial-card">
+              <div class="editorial-card-header">
+                <div>
+                  <h3 class="card-heading">Actuarial Reserve Indication by Cohort</h3>
+                  <div class="card-caption">Chain Ladder Mack projections by Accident Year</div>
+                </div>
+              </div>
+              <div class="editorial-table-container">
+                <table class="editorial-table">
+                  <thead>
+                    <tr>
+                      <th>Accident Year</th>
+                      <th class="num-col">Latest Reported</th>
+                      <th class="num-col">CDF to Ult</th>
+                      <th class="num-col">Ultimate Claims</th>
+                      <th class="num-col">Indicated IBNR</th>
+                      <th class="num-col">% Reserve</th>
+                    </tr>
+                  </thead>
+                  <tbody id="reservesResultsBody">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Sensitivity Shock Grid -->
+            <div class="editorial-card">
+              <div class="editorial-card-header">
+                <div>
+                  <h3 class="card-heading">Reserve Sensitivity Matrix</h3>
+                  <div class="card-caption">Indicated IBNR liability (PKR Crores) under joint loss severity & settlement tail shifts</div>
+                </div>
+              </div>
+              <div class="editorial-table-container">
+                <table class="editorial-table">
+                  <thead>
+                    <tr>
+                      <th>Loss Severity Shock</th>
+                      <th class="num-col">-5% Settlement Tail</th>
+                      <th class="num-col">Base Tail (1.000)</th>
+                      <th class="num-col">+5% Settlement Tail</th>
+                    </tr>
+                  </thead>
+                  <tbody id="reservesSensitivityBody">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Actuarial Parameters Inspector -->
+          <div class="inspector-card">
+            <div class="inspector-section">
+              <div class="inspector-label">STRESS SCENARIO</div>
+              <div class="chip chip-highlight" id="scenarioDescription">
+                Base Case (Volume-weighted factors)
+              </div>
+              <div class="chips-row" style="margin-top: 6px;">
+                <button class="chip scenario-tab active" data-scenario="base">Base Case</button>
+                <button class="chip scenario-tab" data-scenario="adverse">Adverse (+15%)</button>
+                <button class="chip scenario-tab" data-scenario="favorable">Favorable (-10%)</button>
+              </div>
+            </div>
+
+            <div class="inspector-section">
+              <div class="inspector-label">SOLVENCY ADEQUACY</div>
+              <div class="gauge-box">
+                <svg viewBox="0 0 180 100">
+                  <path d="M 15 90 A 75 75 0 0 1 165 90" fill="none" stroke="#EAE6DC" stroke-width="12" stroke-linecap="round" />
+                  <path d="M 15 90 A 75 75 0 0 1 50 35" fill="none" stroke="#C25E2E" stroke-width="12" />
+                  <path d="M 50 35 A 75 75 0 0 1 130 35" fill="none" stroke="#D19C45" stroke-width="12" />
+                  <path d="M 130 35 A 75 75 0 0 1 165 90" fill="none" stroke="#2E7D32" stroke-width="12" />
+                  <line id="gaugeNeedle" x1="90" y1="90" x2="90" y2="30" stroke="#141413" stroke-width="2.5" stroke-linecap="round" transform="rotate(15 90 90)" style="transition: transform 0.4s ease;" />
+                  <circle cx="90" cy="90" r="5" fill="#141413" />
+                </svg>
+                <div class="gauge-readout" id="gaugeValueText">108%</div>
+                <div class="gauge-subtext" id="reserveStatusBadge">Adequate (Solvent)</div>
+              </div>
+            </div>
+
+            <div class="inspector-section">
+              <div class="inspector-label">METHODOLOGY</div>
+              <div class="chip-list">
+                <div class="chip-list-item">
+                  <span>Method</span>
+                  <span>Chain Ladder (Mack)</span>
+                </div>
+                <div class="chip-list-item">
+                  <span>Target Reserve Buffer</span>
+                  <span>110%</span>
+                </div>
+                <div class="chip-list-item">
+                  <span>Regulatory Minimum</span>
+                  <span>100%</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="inspector-section">
+              <div class="inspector-label">CONTROLS</div>
+              <div class="chips-row">
+                <button class="chip" id="resetTriangleBtn">Reset Triangle Data</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="data/sample-data.js"></script>
+  <script src="js/forecasting.js"></script>
+  <script src="js/budget.js"></script>
+  <script src="js/reserves.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
